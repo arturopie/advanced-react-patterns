@@ -62,7 +62,7 @@ const resetUser = userDispatch => {
   userDispatch({type: 'reset'})
 }
 
-function UserProvider({children}) {
+function useUser() {
   const {user} = useAuth()
   const [state, dispatch] = React.useReducer(userReducer, {
     status: null,
@@ -70,25 +70,14 @@ function UserProvider({children}) {
     storedUser: user,
     user,
   })
-  const value = [state, dispatch]
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>
+  return [state, dispatch]
 }
 
-function useUser() {
-  const context = React.useContext(UserContext)
-  if (context === undefined) {
-    throw new Error(`useUser must be used within a UserProvider`)
-  }
-  return context
-}
-
-// export {UserProvider, useUser, updateUser}
+// export {useUser, updateUser}
 
 // src/screens/user-profile.js
-// import {UserProvider, useUser, updateUser} from './context/user-context'
-function UserSettings() {
-  const [{user, status, error}, userDispatch] = useUser()
-
+// import {useUser, updateUser} from './context/user-context'
+function UserSettings({user, status, error, userDispatch}) {
   const isPending = status === 'pending'
   const isRejected = status === 'rejected'
 
@@ -173,12 +162,13 @@ function UserSettings() {
   )
 }
 
-function UserDataDisplay() {
-  const [{user}] = useUser()
+function UserDataDisplay({user}) {
   return <pre>{JSON.stringify(user, null, 2)}</pre>
 }
 
 function App() {
+  const [userState, userDispatch] = useUser()
+
   return (
     <div
       style={{
@@ -189,10 +179,8 @@ function App() {
         padding: 10,
       }}
     >
-      <UserProvider>
-        <UserSettings />
-        <UserDataDisplay />
-      </UserProvider>
+      <UserSettings {...userState} userDispatch={userDispatch} />
+      <UserDataDisplay user={userState.user} />
     </div>
   )
 }
