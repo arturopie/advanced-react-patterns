@@ -9,12 +9,17 @@ const callAll =
   (...args) =>
     fns.forEach(fn => fn?.(...args))
 
+const actions = {
+  toggle: 'toggle',
+  reset: 'reset',
+}
+
 function toggleReducer(state, {type, initialState}) {
   switch (type) {
-    case 'toggle': {
+    case actions.toggle: {
       return {on: !state.on}
     }
-    case 'reset': {
+    case actions.reset: {
       return initialState
     }
     default: {
@@ -28,8 +33,8 @@ function useToggle({reducer = toggleReducer, initialOn = false} = {}) {
   const [state, dispatch] = React.useReducer(reducer, initialState)
   const {on} = state
 
-  const toggle = () => dispatch({type: 'toggle'})
-  const reset = () => dispatch({type: 'reset', initialState})
+  const toggle = () => dispatch({type: actions.toggle})
+  const reset = () => dispatch({type: actions.reset, initialState})
 
   function getTogglerProps({onClick, ...props} = {}) {
     return {
@@ -62,7 +67,7 @@ function App() {
   function toggleStateReducer(state, action) {
     const defaultNewState = toggleReducer(state, action)
 
-    if (action.type === 'toggle' && timesClicked >= 4) {
+    if (action.type === actions.toggle && timesClicked >= 4) {
       return {...defaultNewState, on: state.on}
     }
 
